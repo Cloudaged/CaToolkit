@@ -1,0 +1,11 @@
+{
+	"RemapUnityFiles": 
+	{
+		"Module.CaToolkit.cpp.obj": [
+			"CaToolkit.init.gen.cpp.obj",
+			"QuickAssetAction.gen.cpp.obj",
+			"QuickAssetAction.cpp.obj",
+			"CaToolkit.cpp.obj"
+		]
+	}
+}
