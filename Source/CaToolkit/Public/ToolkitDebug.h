@@ -36,3 +36,4 @@ static  void ShowNotifyInfo(const FString& message)
 
 	FSlateNotificationManager::Get().AddNotification(notifyInfo);
 }
+

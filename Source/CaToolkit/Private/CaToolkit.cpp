@@ -10,12 +10,15 @@
 #include "ObjectTools.h"
 #include "AssetRegistry/AssetRegistryModule.h"
 #include "AssetToolsModule.h"
+#include "SlateWidgets/AdvanceDeletionWidget.h"
+
 #define LOCTEXT_NAMESPACE "FCaToolkitModule"
 
 void FCaToolkitModule::StartupModule()
 {
 	// This code will execute after your module is loaded into memory; the exact timing is specified in the .uplugin file per-module
 	InitCBMenuExtension();
+	RegisterAdvanceDeletionTab();
 }
 
 void FCaToolkitModule::ShutdownModule()
@@ -73,6 +76,14 @@ void FCaToolkitModule::AddCBMenuEntry(FMenuBuilder& menuBuilder)
 		FText::FromString(TEXT("Remove empty folders under this folder")),
 		FSlateIcon(),
 		FExecuteAction::CreateRaw(this, &FCaToolkitModule::OnDeleteEmptyFoldersButtonClicked)
+	);
+
+	menuBuilder.AddMenuEntry
+	(
+		FText::FromString(TEXT("Advance deletion")),
+		FText::FromString(TEXT("List assets by specific condition")),
+		FSlateIcon(),
+		FExecuteAction::CreateRaw(this, &FCaToolkitModule::OnAdvanceDeletionButtonClicked)
 	);
 }
 
@@ -180,6 +191,12 @@ void FCaToolkitModule::OnDeleteEmptyFoldersButtonClicked()
 	
 }
 
+void FCaToolkitModule::OnAdvanceDeletionButtonClicked()
+{
+	FixupRedirectors();
+	FGlobalTabmanager::Get()->TryInvokeTab(FName("AdvanceDeletion"));	
+}
+
 void FCaToolkitModule::FixupRedirectors()
 {
 	//reditectors need to fixed
@@ -214,8 +231,117 @@ void FCaToolkitModule::FixupRedirectors()
 	//send asset need to fix to assetToolsModule.
 	assetToolsModule.Get().FixupReferencers(redirectorsToFixArray);
 }
-#pragma endregion 
+#pragma endregion
 
+
+#pragma region CustomEditorTab
+void FCaToolkitModule::RegisterAdvanceDeletionTab()
+{
+	FGlobalTabmanager::Get()->RegisterNomadTabSpawner(FName("AdvanceDeletion"),
+		FOnSpawnTab::CreateRaw(this, &FCaToolkitModule::OnSpawnAdvanceDeletionTab))
+	.SetDisplayName(FText::FromString("Advance Deletion"));
+}
+
+TSharedRef<SDockTab> FCaToolkitModule::OnSpawnAdvanceDeletionTab(const FSpawnTabArgs& args)
+{
+	
+	return	SNew(SDockTab).TabRole(ETabRole::NomadTab)
+	[
+		SNew(SAdvanceDeletionTab)
+		.AssetsDataArray(FCaToolkitModule::GetAllAssetDataUnderSelectedFolder())
+		.CurrentSelectedFolder(folderPathSelected[0])
+	];
+}
+
+TArray<TSharedPtr<FAssetData>> FCaToolkitModule::GetAllAssetDataUnderSelectedFolder()
+{
+	TArray<TSharedPtr<FAssetData>> availableAssetData;
+	TArray<FString> assetPathNames = UEditorAssetLibrary::ListAssets(folderPathSelected[0],true,false);
+	for(const FString &assetPathName : assetPathNames)
+	{
+		if(assetPathName.Contains(TEXT("Developers"))|| assetPathName.Contains(TEXT("Collections"))||
+			assetPathName.Contains(TEXT("__ExternalActors__"))|| assetPathName.Contains(TEXT("__ExternalObjects__")))
+		{
+			continue;
+		}
+		if(!UEditorAssetLibrary::DoesAssetExist(assetPathName)) continue;
+		const FAssetData data =  UEditorAssetLibrary::FindAssetData(assetPathName);
+		availableAssetData.Add(MakeShared<FAssetData>(data)) ;
+	}
+	return availableAssetData;
+}
+
+#pragma endregion
+
+#pragma region ProcessDataForAdvanceDeletionTab
+bool FCaToolkitModule::DeleteSingleAssetForAssetList(const FAssetData& assetDataToDelete)
+{
+	TArray<FAssetData> assetDataForDeletion;
+	assetDataForDeletion.Add(assetDataToDelete);
+	if(ObjectTools::DeleteAssets(assetDataForDeletion)>0)
+	{
+		return true;
+	}
+	return false;
+}
+
+bool FCaToolkitModule::DeleteMultipleAssetsForAssetList(const TArray<FAssetData>& assetsToDelete)
+{
+	if(ObjectTools::DeleteAssets(assetsToDelete)>0)
+	{
+		return true;
+	}
+	return false;
+}
+
+void FCaToolkitModule::ListUnusedAssetsForAssetList(const TArray<TSharedPtr<FAssetData>>& assetsDataToFilter,
+	TArray<TSharedPtr<FAssetData>>& outUnusedAssetData)
+{
+	outUnusedAssetData.Empty();
+	for(const TSharedPtr<FAssetData>& assetData : assetsDataToFilter)
+	{
+		TArray<FString> assetReferencers = UEditorAssetLibrary::FindPackageReferencersForAsset(assetData->ObjectPath.ToString());
+		
+		if(assetReferencers.Num()==0)
+		{
+			outUnusedAssetData.Add(assetData);
+		}
+	}
+}
+
+void FCaToolkitModule::ListSameNameAssetsForAssetList(const TArray<TSharedPtr<FAssetData>>& assetsDataToFilter,
+	TArray<TSharedPtr<FAssetData>>& outSameAssetData)
+{
+	outSameAssetData.Empty();
+	TMultiMap<FString,TSharedPtr<FAssetData>> assetInfoMap;
+	for(const TSharedPtr<FAssetData>& assetData : assetsDataToFilter)
+	{
+		assetInfoMap.Add(assetData->AssetName.ToString(),assetData);
+	}
+
+	for(const TSharedPtr<FAssetData>& assetData : assetsDataToFilter)
+	{
+		TArray<TSharedPtr<FAssetData>> outAssetData ;
+		assetInfoMap.MultiFind(assetData->AssetName.ToString(),outAssetData);//Find all data that have the same name
+		if(outAssetData.Num()<=1)continue;
+
+		for(const TSharedPtr<FAssetData>& sameAssetData : outAssetData)
+		{
+			if(sameAssetData.IsValid())
+			{
+				outSameAssetData.AddUnique(sameAssetData);
+			}
+		}
+	}
+}
+
+void FCaToolkitModule::SyncCBToClickedAssetForAssetList(const FString& assetPathToSync)
+{
+	TArray<FString> assetPaths;
+	assetPaths.Add(assetPathToSync);
+	UEditorAssetLibrary::SyncBrowserToObjects(assetPaths);
+}
+#pragma endregion 
 #undef LOCTEXT_NAMESPACE
 	
 IMPLEMENT_MODULE(FCaToolkitModule, CaToolkit)
