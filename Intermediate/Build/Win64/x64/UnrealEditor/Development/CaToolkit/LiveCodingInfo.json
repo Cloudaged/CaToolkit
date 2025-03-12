@@ -3,8 +3,10 @@
 	{
 		"Module.CaToolkit.cpp.obj": [
 			"CaToolkit.init.gen.cpp.obj",
+			"QuickActorActionsWidget.gen.cpp.obj",
 			"QuickAssetAction.gen.cpp.obj",
 			"QuickMaterialCreationWidget.gen.cpp.obj",
+			"QuickActorActionsWidget.cpp.obj",
 			"QuickAssetAction.cpp.obj",
 			"QuickMaterialCreationWidget.cpp.obj",
 			"CaToolkit.cpp.obj",
