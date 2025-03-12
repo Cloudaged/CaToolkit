@@ -1244,7 +1244,16 @@
             "d:\\unreal\\ue_5.4\\engine\\intermediate\\build\\win64\\unrealeditor\\inc\\umg\\uht\\userwidget.generated.h",
             "d:\\unreal\\ue_5.4\\engine\\source\\runtime\\engine\\classes\\materials\\materialinstanceconstant.h",
             "d:\\unreal\\ue_5.4\\engine\\intermediate\\build\\win64\\unrealeditor\\inc\\engine\\uht\\materialinstanceconstant.generated.h",
-            "d:\\code_lib\\agproject\\unreal\\goforit2025\\plugins\\catoolkit\\intermediate\\build\\win64\\unrealeditor\\inc\\catoolkit\\uht\\quickassetaction.generated.h"
+            "d:\\code_lib\\agproject\\unreal\\goforit2025\\plugins\\catoolkit\\intermediate\\build\\win64\\unrealeditor\\inc\\catoolkit\\uht\\quickassetaction.generated.h",
+            "d:\\code_lib\\agproject\\unreal\\goforit2025\\plugins\\catoolkit\\intermediate\\build\\win64\\unrealeditor\\inc\\catoolkit\\uht\\quickmaterialcreationwidget.gen.cpp",
+            "d:\\code_lib\\agproject\\unreal\\goforit2025\\plugins\\catoolkit\\source\\catoolkit\\public\\assetaction\\quickmaterialcreationwidget.h",
+            "d:\\unreal\\ue_5.4\\engine\\source\\editor\\blutility\\classes\\editorutilitywidget.h",
+            "d:\\unreal\\ue_5.4\\engine\\intermediate\\build\\win64\\unrealeditor\\inc\\blutility\\uht\\editorutilitywidget.generated.h",
+            "d:\\unreal\\ue_5.4\\engine\\source\\runtime\\engine\\classes\\materials\\materialexpressiontexturesample.h",
+            "d:\\unreal\\ue_5.4\\engine\\source\\runtime\\engine\\classes\\materials\\materialexpressiontexturebase.h",
+            "d:\\unreal\\ue_5.4\\engine\\intermediate\\build\\win64\\unrealeditor\\inc\\engine\\uht\\materialexpressiontexturebase.generated.h",
+            "d:\\unreal\\ue_5.4\\engine\\intermediate\\build\\win64\\unrealeditor\\inc\\engine\\uht\\materialexpressiontexturesample.generated.h",
+            "d:\\code_lib\\agproject\\unreal\\goforit2025\\plugins\\catoolkit\\intermediate\\build\\win64\\unrealeditor\\inc\\catoolkit\\uht\\quickmaterialcreationwidget.generated.h"
         ],
         "ImportedModules": [],
         "ImportedHeaderUnits": []

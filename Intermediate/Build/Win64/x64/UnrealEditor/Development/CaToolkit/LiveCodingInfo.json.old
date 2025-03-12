@@ -5,7 +5,8 @@
 			"CaToolkit.init.gen.cpp.obj",
 			"QuickAssetAction.gen.cpp.obj",
 			"QuickAssetAction.cpp.obj",
-			"CaToolkit.cpp.obj"
+			"CaToolkit.cpp.obj",
+			"AdvanceDeletionWidget.cpp.obj"
 		]
 	}
 }
